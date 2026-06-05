@@ -64,8 +64,8 @@ jobs:
             fi
           fi
           if [ -z "$REVIEW_PROMPT" ]; then
-            echo "Warning: using minimal fallback review prompt." >&2
-            REVIEW_PROMPT="Review this pull request and submit a GitHub PR review in Chinese. Focus on exam directory layout, frontmatter normalization, supported MDX components, and rendering/build regressions."
+            echo "Error: review prompt is unavailable in both PR head and base commit." >&2
+            exit 1
           fi
           PR_NUMBER=${{ github.event.pull_request.number }}
           REPO=${{ github.repository }}
