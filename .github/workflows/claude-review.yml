@@ -55,13 +55,16 @@ jobs:
             REVIEW_PROMPT=$(cat .github/prompts/review.md)
           fi
           if [ -z "$REVIEW_PROMPT" ]; then
-            REVIEW_PROMPT=$(
+            if ! REVIEW_PROMPT=$(
               curl -fsSL \
-                "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.pull_request.base.sha }}/.github/prompts/review.md" \
-                || true
-            )
+                "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.pull_request.base.sha }}/.github/prompts/review.md"
+            ); then
+              echo "Warning: failed to fetch .github/prompts/review.md from base commit SHA." >&2
+              REVIEW_PROMPT=""
+            fi
           fi
           if [ -z "$REVIEW_PROMPT" ]; then
+            echo "Warning: using minimal fallback review prompt." >&2
             REVIEW_PROMPT="Review this pull request and submit a GitHub PR review in Chinese. Focus on exam directory layout, frontmatter normalization, supported MDX components, and rendering/build regressions."
           fi
           PR_NUMBER=${{ github.event.pull_request.number }}
