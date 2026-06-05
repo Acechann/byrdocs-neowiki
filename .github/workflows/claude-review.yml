@@ -50,7 +50,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: "true"
         run: |
-          REVIEW_PROMPT=$(cat .github/prompts/review.md)
+          if [ -f .github/prompts/review.md ]; then
+            REVIEW_PROMPT=$(cat .github/prompts/review.md)
+          else
+            REVIEW_PROMPT="Review this pull request and submit a GitHub PR review in Chinese."
+          fi
           PR_NUMBER=${{ github.event.pull_request.number }}
           REPO=${{ github.repository }}
 
