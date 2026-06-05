@@ -50,21 +50,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEBUG: "true"
         run: |
+          REVIEW_PROMPT=""
           if [ -f .github/prompts/review.md ]; then
             REVIEW_PROMPT=$(cat .github/prompts/review.md)
-          else
-            REVIEW_PROMPT=$(cat <<'EOF'
-Review this pull request and submit a GitHub PR review in Chinese.
-
-Focus on:
-- exam files follow exams/<试卷名>/index.mdx layout and valid directory naming.
-- frontmatter fields (时间/科目/阶段/类型) are complete and normalized.
-- MDX content uses supported components and local Figure/Audio references.
-- site code changes do not introduce build/check regressions.
-
-Organize findings under: 必须修改 / 建议修改 / 请确认.
-EOF
+          fi
+          if [ -z "$REVIEW_PROMPT" ]; then
+            REVIEW_PROMPT=$(
+              curl -fsSL \
+                "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.event.pull_request.base.ref }}/.github/prompts/review.md" \
+                || true
             )
+          fi
+          if [ -z "$REVIEW_PROMPT" ]; then
+            REVIEW_PROMPT="Review this pull request and submit a GitHub PR review in Chinese."
           fi
           PR_NUMBER=${{ github.event.pull_request.number }}
           REPO=${{ github.repository }}
