@@ -10,12 +10,17 @@ export interface RecentExam {
 export function getRecentlyChangedExams(): RecentExam[] {
   try {
     const output = execSync(
-      `git log --format='---COMMIT---%n%at%n%s' --name-only --diff-filter=AM --max-count=30 -- 'exams/'`,
+      `git log --format='---COMMIT---%n%at%n%s' --name-only --max-count=30 -- 'exams/'`,
       { encoding: "utf-8" },
     );
+    console.warn("[gitHistory] raw output length:", output.length);
     const exams = parseGitLog(output);
-    return filterExistingExams(exams);
-  } catch {
+    console.warn("[gitHistory] parsed exams:", exams.length);
+    const filtered = filterExistingExams(exams);
+    console.warn("[gitHistory] after filtering:", filtered.length);
+    return filtered;
+  } catch (e) {
+    console.warn("[gitHistory] git log failed:", e);
     return [];
   }
 }
